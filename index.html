@@ -1,0 +1,634 @@
+<!-- ====================================== -->
+<!-- templates/index.html -->
+<!-- ====================================== -->
+
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+
+        SoyGuard AI
+
+    </title>
+
+    <!-- GOOGLE FONT -->
+
+    <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Syne:wght@700;800&display=swap"
+    rel="stylesheet"
+    >
+
+    <!-- CSS -->
+
+    <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<!-- ====================================== -->
+<!-- HERO -->
+<!-- ====================================== -->
+
+<div class="hero">
+
+    <!-- DECORATION -->
+
+    <div class="hero-deco d1"></div>
+    <div class="hero-deco d2"></div>
+    <div class="hero-deco d3"></div>
+    <div class="hero-deco d4"></div>
+
+    <div class="hero-inner">
+
+        <!-- LEFT -->
+
+        <div class="hero-left">
+
+            <div class="brand-wrapper">
+
+                <img
+                src="{{ url_for('static', filename='img/logo.png') }}"
+                class="hero-logo"
+                draggable="false">
+
+                <div class="brand-info">
+
+                    <div class="hero-brand">
+
+                        SoyGuard AI
+
+                    </div>
+
+                    <div class="brand-description">
+
+                        Sistem berbasis Artificial Intelligence
+                        untuk mendeteksi kualitas kedelai secara otomatis
+                        menggunakan teknologi YOLOv12 Computer Vision.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="hero-right">
+
+            <div class="hero-eyebrow">
+
+                YOLO12 • COMPUTER VISION
+
+            </div>
+
+            <h1>
+
+                Deteksi
+                <span>Kualitas</span>
+                Kedelai
+
+            </h1>
+
+            <div class="hero-sub">
+
+                Detection • Classification • Grading
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ====================================== -->
+<!-- MAIN -->
+<!-- ====================================== -->
+
+<div class="container">
+
+    <!-- ================================== -->
+    <!-- UPLOAD -->
+    <!-- ================================== -->
+
+    <div class="card">
+
+        <div class="card-title">
+
+            <div class="card-dot"></div>
+
+            Masukkan Gambar Kedelai
+
+        </div>
+
+        <div class="upload-box">
+
+            <form
+            action="/predict"
+            method="POST"
+            enctype="multipart/form-data"
+            >
+
+                <!-- CUSTOM FILE -->
+
+                <div class="custom-upload">
+
+                    <label
+                    for="file-upload"
+                    class="upload-label"
+                    >
+
+                        <div class="upload-icon">
+
+                            ⬆
+
+                        </div>
+
+                        <div class="upload-text">
+
+                            Seret & Lepas Gambar Kedelai
+
+                        </div>
+
+                        <div class="upload-sub">
+
+                            atau klik untuk memilih gambar
+
+                        </div>
+
+                    </label>
+
+                    <input
+                    id="file-upload"
+                    type="file"
+                    name="images"
+                    accept="image/*"
+                    required
+                    >
+
+                    <div id="file-name">
+
+                        Tidak ada gambar yang dipilih
+
+                    </div>
+
+                </div>
+
+                <!-- FIX: hapus <br><br>, pakai margin di CSS -->
+
+                <button type="submit">
+
+                    Analisis Kedelai
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ================================== -->
+    <!-- DETECTION -->
+    <!-- ================================== -->
+
+    {% if uploaded_image %}
+
+    <div id="result-section">
+
+        <div class="results-grid">
+
+            <!-- ORIGINAL -->
+
+            <div class="card">
+
+                <div class="card-title">
+
+                    <div class="card-dot"></div>
+
+                    Original Image
+
+                </div>
+
+                <img
+                src="{{ uploaded_image }}"
+                class="result-image"
+                draggable="false"
+                >
+
+            </div>
+
+            <!-- RESULT -->
+
+            <div class="card">
+
+                <div class="card-title">
+
+                    <div class="card-dot"></div>
+
+                    Detection Result
+
+                </div>
+
+                <img
+                src="{{ result_image }}"
+                class="result-image"
+                draggable="false"
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+    <!-- ================================== -->
+    <!-- RESULT -->
+    <!-- ================================== -->
+
+    {% if results %}
+
+    <!-- ================================== -->
+    <!-- GRADING -->
+    <!-- ================================== -->
+
+    <div class="card">
+
+        <div class="card-title">
+
+            <div class="card-dot"></div>
+
+            Final Grading Result
+
+        </div>
+
+        <div class="stat-grid">
+
+            <!-- TOTAL -->
+
+            <div class="stat-box">
+
+                <h3>Total Soybean</h3>
+
+                <h1>
+
+                    {{ total_soybean }}
+
+                </h1>
+
+            </div>
+
+            <!-- INTACT -->
+
+            <div class="stat-box">
+
+                <h3>Total Intact</h3>
+
+                <h1>
+
+                    {{ total_intact }}
+
+                </h1>
+
+            </div>
+
+            <!-- DEFECT -->
+
+            <div class="stat-box">
+
+                <h3>Total Defect</h3>
+
+                <h1>
+
+                    {{ total_defect }}
+
+                </h1>
+
+            </div>
+
+            <!-- QUALITY -->
+
+            <div class="stat-box">
+
+                <h3>Quality Score</h3>
+
+                <h1>
+
+                    {{ quality_score }}%
+
+                </h1>
+
+            </div>
+
+            <!-- GRADE -->
+
+            <div class="stat-box">
+
+                <h3>Grade</h3>
+
+                <div class="grade">
+
+                    {{ grade }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FIX: tambah class "quality-text" agar styling tepat sasaran -->
+
+        <p class="quality-text">
+
+            Quality : {{ quality }}
+
+        </p>
+
+        <!-- DOWNLOAD -->
+
+        <a
+        href="/download"
+        class="download-btn"
+        >
+
+            Download PDF Report
+
+        </a>
+
+    </div>
+
+    <!-- ================================== -->
+    <!-- CROP -->
+    <!-- ================================== -->
+
+    <div class="card">
+
+        <div class="card-title">
+
+            <div class="card-dot"></div>
+
+            Soybean Crop Results
+
+        </div>
+
+        <div class="crop-grid">
+
+            {% for item in results %}
+
+            <div class="crop-card">
+
+                <img
+                src="{{ item.crop_path }}"
+                class="result-image"
+                draggable="false"
+                >
+
+                <!-- FIX: hapus <br><br>, pakai margin di CSS -->
+
+                <div class="class-badge">
+
+                    {{ item.class_name }}
+
+                </div>
+
+                <strong class="crop-confidence">
+
+                    {{ item.confidence }}%
+
+                </strong>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <!-- ================================== -->
+    <!-- TABLE -->
+    <!-- ================================== -->
+
+    <div class="card">
+
+        <div class="card-title">
+
+            <div class="card-dot"></div>
+
+            Classification Results
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>No</th>
+                    <th>Class</th>
+                    <th>Confidence</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for item in results %}
+
+                <tr>
+
+                    <td>
+
+                        {{ loop.index }}
+
+                    </td>
+
+                    <td>
+
+                        {{ item.class_name }}
+
+                    </td>
+
+                    <td>
+
+                        {{ item.confidence }}%
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- ================================== -->
+    <!-- DASHBOARD -->
+    <!-- ================================== -->
+
+    <div class="card">
+
+        <div class="card-title">
+
+            <div class="card-dot"></div>
+
+            Statistics Dashboard
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Class</th>
+                    <th>Total</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for cls, count in statistics.items() %}
+
+                <tr>
+
+                    <td>
+
+                        {{ cls }}
+
+                    </td>
+
+                    <td>
+
+                        {{ count }}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+<!-- ====================================== -->
+<!-- FOOTER -->
+<!-- ====================================== -->
+
+<div class="footer">
+
+    <div class="footer-brand">
+
+        SoyGuard AI
+
+    </div>
+
+    <br>
+
+    YOLO12 Soybean Quality Detection System
+
+</div>
+
+<!-- ====================================== -->
+<!-- JAVASCRIPT -->
+<!-- ====================================== -->
+
+<script>
+
+/* ====================================== */
+/* FILE NAME */
+/* ====================================== */
+
+const fileInput =
+
+document.getElementById(
+    "file-upload"
+);
+
+const fileName =
+
+document.getElementById(
+    "file-name"
+);
+
+fileInput.addEventListener(
+
+    "change",
+
+    function(){
+
+        if(this.files.length > 0){
+
+            fileName.textContent =
+            this.files[0].name;
+
+            document.activeElement.blur();
+
+        }
+
+    }
+
+);
+
+/* ====================================== */
+/* AUTO SCROLL */
+/* ====================================== */
+
+window.onload = function(){
+
+    const resultSection =
+
+    document.getElementById(
+        "result-section"
+    );
+
+    if(resultSection){
+
+        resultSection.scrollIntoView({
+
+            behavior:"smooth",
+
+            block:"start"
+
+        });
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
